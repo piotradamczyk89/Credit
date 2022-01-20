@@ -5,8 +5,10 @@ import com.inteca.credit.credit.Credit;
 import com.inteca.credit.inputObject.customerList.Customer;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class CreditCustomerAggregate {
+public class CreditCustomerAggregate implements Serializable {
 
 
     private String firstName;

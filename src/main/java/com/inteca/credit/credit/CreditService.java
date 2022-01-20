@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface CreditService {
 
-    void saveCredit (Credit credit);
+    Credit saveCredit (Credit credit);
 
     Credit findByCustomerId (Long customerId);
 

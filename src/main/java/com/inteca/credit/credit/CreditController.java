@@ -25,8 +25,8 @@ public class CreditController {
     @PostMapping("/create")
     public CreditId createCredit (@RequestBody InputCreateCreditDto inputCreateCreditDto) {
         Long customerId = creditService.getCustomerId(inputCreateCreditDto);
-        creditService.saveCredit(new Credit(inputCreateCreditDto.getCreditName(), inputCreateCreditDto.getValue(), customerId));
-        Credit credit = creditService.findByCustomerId(customerId);
+        Credit credit = creditService.saveCredit(new Credit(inputCreateCreditDto.getCreditName()
+                , inputCreateCreditDto.getValue(), customerId));
         return new CreditId(credit.getId());
     }
 

@@ -35,8 +35,8 @@ public class CreditServiceImpl implements CreditService{
     private final CreditRepository creditRepository;
 
     @Override
-    public void saveCredit(Credit credit) {
-        creditRepository.save(credit);
+    public Credit saveCredit(Credit credit) {
+        return creditRepository.save(credit);
     }
 
     @Override
