@@ -1,11 +1,19 @@
 package com.inteca.credit.credit;
-import com.inteca.credit.dto.CreditCustomerDto;
-import com.inteca.credit.responseObject.CreditCustomerAggregate;
+
+import com.inteca.credit.inputObject.InputCreateCreditDto;
+
+import com.inteca.credit.inputObject.customerList.CustomerList;
+import com.inteca.credit.requestObject.CustomerIdList;
+
+
+import com.inteca.credit.responseObject.creditCustomerAgregate.CreditCustomerAggregate;
 import com.inteca.credit.responseObject.CreditId;
+import com.inteca.credit.responseObject.creditCustomerAgregate.CreditCustomerAggregateList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -15,18 +23,18 @@ public class CreditController {
     private final CreditService creditService;
 
     @PostMapping("/create")
-    public CreditId createCredit (@RequestBody CreditCustomerDto inputDto) {
-        Credit credit = creditService.generateCredit(inputDto);
-        creditService.saveCredit(credit);
+    public CreditId createCredit (@RequestBody InputCreateCreditDto inputCreateCreditDto) {
+        Long customerId = creditService.getCustomerId(inputCreateCreditDto);
+        creditService.saveCredit(new Credit(inputCreateCreditDto.getCreditName(), inputCreateCreditDto.getValue(), customerId));
+        Credit credit = creditService.findByCustomerId(customerId);
         return new CreditId(credit.getId());
     }
 
     @GetMapping("/get")
-    public List<CreditCustomerAggregate> getCredits () {
+    public CreditCustomerAggregateList getCredits () {
         List<Credit> credits = creditService.findAllCredits();
-        List<Long> listOfCreditsId = creditService.getListOfCreditsId(credits);
-        CreditCustomerDto customersWithCredits = creditService.findCustomersWithCredit(listOfCreditsId);
-        return customersWithCredits.mapCreditCustomerAggregate(credits);
+        CustomerList customerList = creditService.grtCustomers(credits);
+        return CreditCustomerAggregateList.createAggregateList(credits,customerList);
     }
 
 }

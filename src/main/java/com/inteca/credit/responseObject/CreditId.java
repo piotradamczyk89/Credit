@@ -1,16 +1,15 @@
 package com.inteca.credit.responseObject;
 
-import com.inteca.credit.customer.Customer;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreditId {
+
     private Long creditId;
 
-    public CreditId(Long creditId) {
-        this.creditId = creditId;
-    }
 }

@@ -1,26 +1,37 @@
 package com.inteca.credit.credit;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.inteca.credit.customer.Customer;
-import com.inteca.credit.dto.CreditCustomerDto;
-import lombok.AllArgsConstructor;
+
+
+import com.inteca.credit.inputObject.CustomerId;
+import com.inteca.credit.inputObject.InputCreateCreditDto;
+import com.inteca.credit.inputObject.customerList.Customer;
+import com.inteca.credit.inputObject.customerList.CustomerList;
+import com.inteca.credit.requestObject.CreateCustomer;
+import com.inteca.credit.requestObject.CustomerIdList;
+import com.inteca.credit.requestObject.Pesel;
+
+import lombok.RequiredArgsConstructor;
+
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CreditServiceImpl implements CreditService{
 
+    @Value("${app.customer.address}")
+    private String customerAddress;
     private final CreditRepository creditRepository;
 
     @Override
@@ -29,54 +40,42 @@ public class CreditServiceImpl implements CreditService{
     }
 
     @Override
-    public Credit generateCredit(CreditCustomerDto inputDto) {
-        CreditCustomerDto responseDto = searchCustomer(inputDto);
-        if (responseDto==null) {
-            responseDto = createCustomer(inputDto);
-        }
-        responseDto.margeToCreateCredit(inputDto);
-        return responseDto.mapCredit();
+    public Credit findByCustomerId(Long customerId) {
+        return creditRepository.findByCustomerId(customerId);
     }
 
     @Override
-    public CreditCustomerDto searchCustomer(CreditCustomerDto inputDto) {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8074/customer/search");
-        StringEntity params = null;
-        try {
-            params = new StringEntity("{\n\"pesel\": \"" + inputDto.getPesel() + "\"\n}");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+    public Long getCustomerId(InputCreateCreditDto inputCreateCreditDto) {
+        CustomerList customerList = searchCustomer(inputCreateCreditDto);
+        Long customerId = null;
+        if(customerList.getCustomers().isEmpty()) {
+            customerId = createCustomer(inputCreateCreditDto).getCustomerId();
+        } else {
+            customerId=customerList.getCustomers().get(0).getId();
         }
-        return getResultDto(client, httpPost, params);
+        return customerId;
+    }
+
+    //rest assured,
+
+    @Override
+    public CustomerList searchCustomer(InputCreateCreditDto inputCreateCreditDto) {
+        String url = customerAddress + "customer/search";
+        Pesel pesel = new Pesel(inputCreateCreditDto.getPesel());
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url, pesel, CustomerList.class);
+        return responseEntity.getBody();
     }
 
     @Override
-    public CreditCustomerDto createCustomer(CreditCustomerDto inputDto) {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8074/customer");
-        StringEntity params = null;
-        try {
-            params = new StringEntity("{\n\"firstName\": \"" + inputDto.getFirstName() + "\",\n" +
-                    "\"lastName\": \"" + inputDto.getLastName() + "\",\n" +
-                    "\"pesel\": \"" + inputDto.getPesel() + "\"\n}");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return getResultDto(client, httpPost, params);
-    }
+    public CustomerId createCustomer(InputCreateCreditDto inputCreateCreditDto) {
+        String url = customerAddress + "customer";
+        CreateCustomer createCustomer = new CreateCustomer(inputCreateCreditDto.getFirstName()
+                , inputCreateCreditDto.getLastName(), inputCreateCreditDto.getPesel());
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<CustomerId> responseEntity = restTemplate.postForEntity(url, createCustomer, CustomerId.class);
+        return responseEntity.getBody();
 
-    @Override
-    public CreditCustomerDto getResultDto(CloseableHttpClient client, HttpPost httpPost, StringEntity params) {
-        httpPost.setEntity(params);
-        ObjectMapper mapper = new ObjectMapper();
-        CreditCustomerDto requestResult = null;
-        try {
-            requestResult = client.execute(httpPost, httpResponse -> mapper.readValue(httpResponse.getEntity().getContent(), CreditCustomerDto.class));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return requestResult;
     }
 
     @Override
@@ -85,21 +84,18 @@ public class CreditServiceImpl implements CreditService{
     }
 
     @Override
-    public List<Long> getListOfCreditsId(List<Credit> credits) {
-       return credits.stream().map(Credit::getId).collect(Collectors.toList());
+    public CustomerIdList getListOfCustomersId (List<Credit> credits) {
+        List<Long> customersIds = credits.stream().map(Credit::getCustomerId).collect(Collectors.toList());
+        return new CustomerIdList(customersIds);
     }
 
     @Override
-    public CreditCustomerDto findCustomersWithCredit(List<Long> creditsId) {
+    public CustomerList grtCustomers(List<Credit> credits) {
+        CustomerIdList customerIdList = getListOfCustomersId(credits);
+        String url = customerAddress + "customer/filtered";
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://localhost:8074/customer/filtered");
-        StringEntity params = null;
-        try {
-            params = new StringEntity("{\n\"customersIds\": " + creditsId + "\n}");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return getResultDto(client, httpPost, params);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url, customerIdList, CustomerList.class);
+        return responseEntity.getBody();
     }
 }
