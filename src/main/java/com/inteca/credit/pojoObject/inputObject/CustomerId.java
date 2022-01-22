@@ -1,4 +1,4 @@
-package com.inteca.credit.inputObject;
+package com.inteca.credit.pojoObject.inputObject;
 
 import lombok.Data;
 

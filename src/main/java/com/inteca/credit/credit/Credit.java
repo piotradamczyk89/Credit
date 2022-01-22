@@ -12,11 +12,8 @@ public class Credit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String creditName;
     private Double value;
-
-    @Column(unique=true)
     private Long customerId;
 
     public Credit(String creditName, Double value, Long customerId) {

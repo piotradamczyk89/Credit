@@ -1,8 +1,8 @@
-package com.inteca.credit.responseObject.creditCustomerAgregate;
+package com.inteca.credit.pojoObject.responseObject.creditCustomerAgregate;
 
 
 import com.inteca.credit.credit.Credit;
-import com.inteca.credit.inputObject.customerList.Customer;
+import com.inteca.credit.pojoObject.inputObject.customerList.Customer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -26,6 +26,6 @@ public class CreditCustomerAggregate implements Serializable {
         this.creditName = credit.getCreditName();
         this.value = credit.getValue();
         this.creditId = credit.getId();
-        this.customerId = customer.getId();
+        this.customerId = customer.getCustomerId();
     }
 }

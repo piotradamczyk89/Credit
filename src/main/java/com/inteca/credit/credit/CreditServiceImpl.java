@@ -3,26 +3,21 @@ package com.inteca.credit.credit;
 
 
 
-import com.inteca.credit.inputObject.CustomerId;
-import com.inteca.credit.inputObject.InputCreateCreditDto;
-import com.inteca.credit.inputObject.customerList.Customer;
-import com.inteca.credit.inputObject.customerList.CustomerList;
-import com.inteca.credit.requestObject.CreateCustomer;
-import com.inteca.credit.requestObject.CustomerIdList;
-import com.inteca.credit.requestObject.Pesel;
+import com.inteca.credit.pojoObject.inputObject.CustomerId;
+import com.inteca.credit.pojoObject.inputObject.InputCreateCredit;
+import com.inteca.credit.pojoObject.inputObject.customerList.CustomerList;
+import com.inteca.credit.pojoObject.requestObject.CreateCustomer;
+import com.inteca.credit.pojoObject.requestObject.CustomerIdList;
+import com.inteca.credit.pojoObject.requestObject.Pesel;
 
 import lombok.RequiredArgsConstructor;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,38 +39,44 @@ public class CreditServiceImpl implements CreditService{
         return creditRepository.findByCustomerId(customerId);
     }
 
+    public Pesel createPesel (InputCreateCredit inputCreateCreditDto) {
+        return new Pesel(inputCreateCreditDto.getPesel());
+    }
+
+    public CreateCustomer createObjectCreateCustomer (InputCreateCredit inputCreateCredit){
+        return new CreateCustomer(inputCreateCredit.getFirstName()
+                , inputCreateCredit.getLastName()
+                , inputCreateCredit.getPesel());
+    }
+
     @Override
-    public Long getCustomerId(InputCreateCreditDto inputCreateCreditDto) {
-        CustomerList customerList = searchCustomer(inputCreateCreditDto);
+    public Long getCustomerId(InputCreateCredit inputCreateCredit) {
+        CustomerList customerList = searchCustomer(createPesel(inputCreateCredit));
         Long customerId = null;
         if(customerList.getCustomers().isEmpty()) {
-            customerId = createCustomer(inputCreateCreditDto).getCustomerId();
+            customerId = createCustomer(createObjectCreateCustomer(inputCreateCredit)).getCustomerId();
         } else {
-            customerId=customerList.getCustomers().get(0).getId();
+            customerId=customerList.getCustomers().get(0).getCustomerId();
         }
         return customerId;
     }
 
-    //rest assured,
+    //rest assured, swagger
 
     @Override
-    public CustomerList searchCustomer(InputCreateCreditDto inputCreateCreditDto) {
-        String url = customerAddress + "customer/search";
-        Pesel pesel = new Pesel(inputCreateCreditDto.getPesel());
+    public CustomerList searchCustomer(Pesel pesel) {
+        String url = customerAddress + "/customer/search";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url, pesel, CustomerList.class);
         return responseEntity.getBody();
     }
 
     @Override
-    public CustomerId createCustomer(InputCreateCreditDto inputCreateCreditDto) {
-        String url = customerAddress + "customer";
-        CreateCustomer createCustomer = new CreateCustomer(inputCreateCreditDto.getFirstName()
-                , inputCreateCreditDto.getLastName(), inputCreateCreditDto.getPesel());
+    public CustomerId createCustomer(CreateCustomer createCustomer) {
+        String url = customerAddress + "/customer";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<CustomerId> responseEntity = restTemplate.postForEntity(url, createCustomer, CustomerId.class);
         return responseEntity.getBody();
-
     }
 
     @Override
@@ -90,12 +91,11 @@ public class CreditServiceImpl implements CreditService{
     }
 
     @Override
-    public CustomerList grtCustomers(List<Credit> credits) {
-        CustomerIdList customerIdList = getListOfCustomersId(credits);
-        String url = customerAddress + "customer/filtered";
-
+    public CustomerList getCustomers(List<Credit> credits) {
+        String url = customerAddress + "/customer/filtered";
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url, customerIdList, CustomerList.class);
+        ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url,
+                getListOfCustomersId(credits), CustomerList.class);
         return responseEntity.getBody();
     }
 }

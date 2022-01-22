@@ -1,4 +1,4 @@
-package com.inteca.credit.inputObject.customerList;
+package com.inteca.credit.pojoObject.inputObject.customerList;
 import lombok.*;
 
 import java.io.Serializable;
@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class Customer implements Serializable {
 
-    private Long id;
+    private Long customerId;
     private String firstName;
     private String lastName;
     private String pesel;

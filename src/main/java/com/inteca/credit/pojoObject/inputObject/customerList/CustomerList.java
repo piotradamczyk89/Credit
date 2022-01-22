@@ -1,9 +1,7 @@
-package com.inteca.credit.inputObject.customerList;
+package com.inteca.credit.pojoObject.inputObject.customerList;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;

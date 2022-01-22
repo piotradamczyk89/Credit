@@ -1,4 +1,4 @@
-package com.inteca.credit.inputObject;
+package com.inteca.credit.pojoObject.inputObject;
 
 
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class InputCreateCreditDto implements Serializable {
+public class InputCreateCredit implements Serializable {
 
     private String firstName;
     private String lastName;

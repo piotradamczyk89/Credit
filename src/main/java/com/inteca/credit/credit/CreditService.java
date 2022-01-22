@@ -1,14 +1,11 @@
 package com.inteca.credit.credit;
 
-import com.inteca.credit.inputObject.CustomerId;
-import com.inteca.credit.inputObject.InputCreateCreditDto;
-import com.inteca.credit.inputObject.customerList.CustomerList;
-import com.inteca.credit.requestObject.CreateCustomer;
-import com.inteca.credit.requestObject.CustomerIdList;
-import com.inteca.credit.requestObject.Pesel;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import com.inteca.credit.pojoObject.inputObject.CustomerId;
+import com.inteca.credit.pojoObject.inputObject.InputCreateCredit;
+import com.inteca.credit.pojoObject.inputObject.customerList.CustomerList;
+import com.inteca.credit.pojoObject.requestObject.CreateCustomer;
+import com.inteca.credit.pojoObject.requestObject.CustomerIdList;
+import com.inteca.credit.pojoObject.requestObject.Pesel;
 
 import java.util.List;
 
@@ -18,17 +15,21 @@ public interface CreditService {
 
     Credit findByCustomerId (Long customerId);
 
-    Long getCustomerId (InputCreateCreditDto inputCreateCreditDto);
+    Long getCustomerId (InputCreateCredit inputCreateCredit);
 
-    CustomerList searchCustomer(InputCreateCreditDto inputCreateCreditDto);
+    CustomerList searchCustomer(Pesel pesel);
 
-    CustomerId createCustomer(InputCreateCreditDto inputCreateCreditDto);
+    CustomerId createCustomer(CreateCustomer createCustomer);
 
     List<Credit> findAllCredits ();
 
     CustomerIdList getListOfCustomersId (List<Credit> credits);
 
-    CustomerList grtCustomers (List<Credit> credits);
+    CustomerList getCustomers(List<Credit> credits);
+
+    CreateCustomer createObjectCreateCustomer (InputCreateCredit inputCreateCredit);
+
+    Pesel createPesel (InputCreateCredit inputCreateCreditDto);
 
 
 }

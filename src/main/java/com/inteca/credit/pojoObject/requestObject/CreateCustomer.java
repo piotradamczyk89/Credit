@@ -1,4 +1,4 @@
-package com.inteca.credit.requestObject;
+package com.inteca.credit.pojoObject.requestObject;
 
 
 import lombok.AllArgsConstructor;
