@@ -1,4 +1,4 @@
-1) Plik ze skryptem do towrzenie bazy danych odnajdziecie w:
+1) Plik ze skryptem do toworzenia bazy danych znajduje się w:
 
 Credit/src/main/resources/database
 
@@ -6,7 +6,7 @@ Credit/src/main/resources/database
 
 - post /credit/create/ 
 
-przyjmuje przykład:
+przyjmuje:
 
 {
 "creditName": "hipoteczny",
@@ -22,7 +22,7 @@ zwraca:
 "creditId": 2
 }
 
-w przypadku błednych danych wejsciowych (nieprawdiłowy pesel, ujemna wartosć kredytu, brak nazwy kredytu) zwraca:
+w przypadku błędnych danych wejsciowych (nieprawdiłowy pesel, ujemna wartosć kredytu, brak nazwy kredytu) zwraca:
 
 {
 "creditId": null
@@ -66,6 +66,6 @@ zwraca:
 ]
 }
 
-3. Projekt wyposażyłem w swaggera. Pod poniższym adresem mozna zoabczyć wszytskie endpointy:
+3. Projekt posiada swaggera. Pod poniższym adresem można zobaczyć wszytskie endpointy:
 
-http://localhost:8080/swagger-ui/
+/swagger-ui/
