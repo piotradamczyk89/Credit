@@ -1,8 +1,6 @@
 package com.inteca.credit.credit;
 
 
-
-
 import com.inteca.credit.pojoObject.inputObject.CustomerId;
 import com.inteca.credit.pojoObject.inputObject.InputCreateCredit;
 import com.inteca.credit.pojoObject.inputObject.customerList.CustomerList;
@@ -13,12 +11,13 @@ import com.inteca.credit.pojoObject.requestObject.Pesel;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,10 +38,21 @@ public class CreditServiceImpl implements CreditService{
         return creditRepository.findByCustomerId(customerId);
     }
 
+    @Override
     public Pesel createPesel (InputCreateCredit inputCreateCreditDto) {
         return new Pesel(inputCreateCreditDto.getPesel());
     }
 
+    @Override
+    public Boolean checkInputData(InputCreateCredit inputCreateCreditDto) {
+        Pattern compiledPattern = Pattern.compile("^\\d{11}$");
+        Matcher matcher = compiledPattern.matcher(inputCreateCreditDto.getPesel());
+        return matcher.matches()
+                && (!inputCreateCreditDto.getCreditName().isEmpty())
+                && inputCreateCreditDto.getValue()>0.0;
+    }
+
+    @Override
     public CreateCustomer createObjectCreateCustomer (InputCreateCredit inputCreateCredit){
         return new CreateCustomer(inputCreateCredit.getFirstName()
                 , inputCreateCredit.getLastName()
@@ -51,17 +61,15 @@ public class CreditServiceImpl implements CreditService{
 
     @Override
     public Long getCustomerId(InputCreateCredit inputCreateCredit) {
-        CustomerList customerList = searchCustomer(createPesel(inputCreateCredit));
+        CustomerList customerList = this.searchCustomer(this.createPesel(inputCreateCredit));
         Long customerId = null;
         if(customerList.getCustomers().isEmpty()) {
-            customerId = createCustomer(createObjectCreateCustomer(inputCreateCredit)).getCustomerId();
+            customerId = this.createCustomer(this.createObjectCreateCustomer(inputCreateCredit)).getCustomerId();
         } else {
             customerId=customerList.getCustomers().get(0).getCustomerId();
         }
         return customerId;
     }
-
-    //rest assured, swagger
 
     @Override
     public CustomerList searchCustomer(Pesel pesel) {
@@ -90,12 +98,11 @@ public class CreditServiceImpl implements CreditService{
         return new CustomerIdList(customersIds);
     }
 
-    @Override
     public CustomerList getCustomers(List<Credit> credits) {
         String url = customerAddress + "/customer/filtered";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<CustomerList> responseEntity = restTemplate.postForEntity(url,
-                getListOfCustomersId(credits), CustomerList.class);
+                this.getListOfCustomersId(credits), CustomerList.class);
         return responseEntity.getBody();
     }
 }

@@ -2,6 +2,7 @@ package com.inteca.credit.credit;
 
 import com.inteca.credit.pojoObject.inputObject.CustomerId;
 import com.inteca.credit.pojoObject.inputObject.InputCreateCredit;
+import com.inteca.credit.pojoObject.inputObject.customerList.Customer;
 import com.inteca.credit.pojoObject.inputObject.customerList.CustomerList;
 import com.inteca.credit.pojoObject.requestObject.CreateCustomer;
 import com.inteca.credit.pojoObject.requestObject.CustomerIdList;
@@ -15,9 +16,9 @@ public interface CreditService {
 
     Credit findByCustomerId (Long customerId);
 
-    Long getCustomerId (InputCreateCredit inputCreateCredit);
+    Long getCustomerId(InputCreateCredit inputCreateCredit);
 
-    CustomerList searchCustomer(Pesel pesel);
+   CustomerList searchCustomer(Pesel pesel);
 
     CustomerId createCustomer(CreateCustomer createCustomer);
 
@@ -30,6 +31,8 @@ public interface CreditService {
     CreateCustomer createObjectCreateCustomer (InputCreateCredit inputCreateCredit);
 
     Pesel createPesel (InputCreateCredit inputCreateCreditDto);
+
+    Boolean checkInputData(InputCreateCredit inputCreateCreditDto);
 
 
 }
